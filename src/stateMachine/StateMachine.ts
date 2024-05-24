@@ -1,19 +1,19 @@
 import { State } from "./State";
 
 export class StateMachine {
-  private currentState: State;
+  private _currentState: State;
 
   public setState(state: State) {
-    if (this.currentState) {
-      this.currentState.exit();
+    if (this._currentState) {
+      this._currentState.exit();
     }
-    this.currentState = state;
-    this.currentState.enter();
+    this._currentState = state;
+    this._currentState.enter();
   }
 
   public update() {
-    if (this.currentState) {
-      this.currentState.update();
+    if (this._currentState) {
+      this._currentState.update();
     }
   }
 }
