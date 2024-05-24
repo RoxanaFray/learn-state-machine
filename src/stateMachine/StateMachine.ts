@@ -1,6 +1,10 @@
 import { State } from "./State";
 
 export class StateMachine {
+  public get currentStateName(): string {
+    return this._currentState.name;
+  }
+
   private _currentState: State;
 
   public setState(state: State) {

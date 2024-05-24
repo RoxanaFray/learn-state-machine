@@ -1,4 +1,8 @@
 export abstract class State {
+  public get name(): string {
+    return "";
+  }
+
   public get isRunning(): boolean {
     return this._isRunning;
   }
