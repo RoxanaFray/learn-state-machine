@@ -3,14 +3,17 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { StateMachine } from "./stateMachine/StateMachine";
+import { Creature } from "./creature/Creature";
 
 function App() {
   const [count, setCount] = useState(0);
 
+  let creature: Creature;
+
   useEffect(() => {
-    const sm = new StateMachine();
-    sm.foo();
-  }, [count]);
+    if (creature) return;
+    creature = new Creature();
+  }, []);
 
   return (
     <>
