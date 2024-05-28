@@ -1,6 +1,6 @@
-import { State } from "../stateMachine/State";
+import { CreatureState } from "./CreatureState";
 
-export class SleepingState extends State {
+export class SleepingState extends CreatureState {
   public get name(): string {
     return "Sleeping";
   }
