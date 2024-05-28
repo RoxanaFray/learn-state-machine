@@ -5,6 +5,10 @@ export class StateMachine {
     return this._currentState.name;
   }
 
+  public get currentState(): State {
+    return this._currentState;
+  }
+
   private _currentState: State;
 
   public setState(state: State) {

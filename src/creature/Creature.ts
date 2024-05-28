@@ -18,11 +18,18 @@ export class Creature {
   public get currentStateName(): string {
     return this._sm.currentStateName;
   }
+  public giveFood(): void {
+    if (this._sm.currentState == this._idleState) {
+      this._hasRecievedFood = true;
+    }
+  }
 
+  private _hasRecievedFood: boolean;
   private _sm: StateMachine;
   private _idleState: IdleState;
   private _eatingState: EatingState;
   private _sleepingState: SleepingState;
+
   private _playingState: PlayingState;
   private _ranAwayState: RanAwayState;
 
@@ -37,17 +44,17 @@ export class Creature {
   private startUpdateCycle() {
     setInterval(() => {
       this.update();
-    }, 200);
+    }, 32);
   }
 
   private initializeStateMachine(onInitializedAction: () => void) {
     this._sm = new StateMachine();
     this._idleState = new IdleState();
     this._eatingState = new EatingState();
+    this._eatingState.setDurationInSeconds(3);
     this._sleepingState = new SleepingState();
     this._playingState = new PlayingState();
     this._ranAwayState = new RanAwayState();
-
     this._sm.setState(this._idleState);
 
     onInitializedAction();
@@ -56,5 +63,18 @@ export class Creature {
   private update() {
     this._sm.update();
     console.log("current state: ", this.currentStateName);
+
+    if (this._sm.currentState.isActive && this._sm.currentState.isDone) {
+      this._sm.setState(this._idleState);
+      return;
+    }
+
+    if (this._hasRecievedFood && this._sm.currentState == this._idleState) {
+      this._hasRecievedFood = false;
+      this._sm.setState(this._eatingState);
+      return;
+    }
+
+    // other conditions...
   }
 }
