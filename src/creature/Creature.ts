@@ -1,4 +1,5 @@
 import { StateMachine } from "../stateMachine/StateMachine";
+import { CreatureData } from "./CreatureData";
 import { EatingState } from "./EatingState";
 import { IdleState } from "./IdleState";
 import { PlayingState } from "./PlayingState";
@@ -6,29 +7,42 @@ import { RanAwayState } from "./RanAwayState";
 import { SleepingState } from "./SleepingState";
 
 export class Creature {
-  public get areEyesOpen(): boolean {
-    return this._areEyesOpen;
+  public setIsActive(isActive: boolean) {
+    this._isActive = isActive;
   }
-  public get isChewing(): boolean {
-    return this._isChewing;
+  public setOnCurrentStateChangedAction(action: (val: string) => void) {
+    this._onCurrentStateChangedAction = action;
   }
-  public get fullness(): number {
-    return this._fullness;
+  public setOnIsChewingChangedAction(action: (val: boolean) => void) {
+    this._onIsChewingChangedAction = action;
   }
-  public get heartRate(): number {
-    return this._heartRate;
+  public setOnAreEyesOpenChangedAction(action: (val: boolean) => void) {
+    this._onAreEyesOpenChangedAction = action;
   }
-  public get currentStateName(): string {
-    return this._sm.currentStateName;
+  public setOnFullnessChangedAction(action: (val: number) => void) {
+    this._onFullnessChangedAction = action;
   }
+  public setOnHeartRateChangedAction(action: (val: number) => void) {
+    this._onHeartRateChangedAction = action;
+  }
+
   public giveFood(): void {
     if (this._sm.currentState == this._idleState) {
-      this._hasRecievedFood = true;
+      this._data.hasRecievedFood = true;
     }
   }
 
-  private _hasRecievedFood: boolean;
+  private _data: CreatureData;
 
+  // data changed actions
+  private _onCurrentStateChangedAction: (val: string) => void;
+  private _onIsChewingChangedAction: (val: boolean) => void;
+  private _onAreEyesOpenChangedAction: (val: boolean) => void;
+  private _onFullnessChangedAction: (val: number) => void;
+  private _onHeartRateChangedAction: (val: number) => void;
+
+  // state machine stuff
+  private _isActive: boolean;
   private _sm: StateMachine;
   private _idleState: IdleState;
   private _eatingState: EatingState;
@@ -36,12 +50,9 @@ export class Creature {
   private _playingState: PlayingState;
   private _ranAwayState: RanAwayState;
 
-  private _areEyesOpen: boolean = false;
-  private _isChewing: boolean = false;
-  private _fullness: number = 1;
-  private _heartRate: number = 0;
-
   constructor() {
+    this._data = new CreatureData();
+    this._isActive = false;
     this.initializeStateMachine(() => this.startUpdateCycle());
   }
 
@@ -65,31 +76,37 @@ export class Creature {
       this._playingState,
       this._ranAwayState,
     ];
-    allStates.forEach((s) => {
-      s.provideCreature(this);
-      s.setDurationInSeconds(3); //todo: it is only temporary here
+    allStates.forEach((state) => {
+      state.provideCreatureDataRef(this._data);
+      state.setDurationInSeconds(3); //todo: it is only temporary here
     });
-
-    this._sm.setState(this._idleState);
-
     onInitializedAction();
   }
 
   private update() {
-    this._sm.update();
-    console.log("current state: ", this.currentStateName);
+    if (!this._isActive) return;
 
-    if (this._sm.currentState.isActive && this._sm.currentState.isDone) {
+    const oldData = JSON.parse(JSON.stringify(this._data)) as CreatureData;
+    const oldState = this._sm.currentState;
+
+    if (
+      !this._sm.currentState ||
+      (this._sm.currentState.isActive && this._sm.currentState.isDone)
+    ) {
       this._sm.setState(this._idleState);
-      return;
-    }
-
-    if (this._hasRecievedFood && this._sm.currentState == this._idleState) {
-      this._hasRecievedFood = false;
+    } else if (
+      this._data.hasRecievedFood &&
+      this._sm.currentState == this._idleState
+    ) {
+      this._data.hasRecievedFood = false;
       this._sm.setState(this._eatingState);
-      return;
     }
+    this._sm.update();
 
-    // other conditions...
+    if (oldState != this._sm.currentState)
+      this._onCurrentStateChangedAction(this._sm.currentStateName);
+    if (oldData.isChewing != this._data.isChewing) {
+      this._onIsChewingChangedAction(this._data.isChewing);
+    }
   }
 }

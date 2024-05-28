@@ -1,10 +1,10 @@
 import { State } from "../stateMachine/State";
-import { Creature } from "./Creature";
+import { CreatureData } from "./CreatureData";
 
 export abstract class CreatureState extends State {
-  protected creature: Creature;
+  protected creatureData: CreatureData;
 
-  public provideCreature(creature: Creature) {
-    this.creature = creature;
+  public provideCreatureDataRef(creatureData: CreatureData) {
+    this.creatureData = creatureData;
   }
 }

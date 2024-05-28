@@ -4,14 +4,17 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import { Creature } from "./creature/Creature";
 
+const creature: Creature = new Creature();
+
 function App() {
   const [count, setCount] = useState(0);
-
-  let creature: Creature;
+  const [isChewing, setIsChewing] = useState(false);
+  const [currentState, setCurrentState] = useState("");
 
   useEffect(() => {
-    if (creature) return;
-    creature = new Creature();
+    creature.setOnCurrentStateChangedAction(setCurrentState);
+    creature.setOnIsChewingChangedAction(setIsChewing);
+    creature.setIsActive(true);
   }, []);
 
   return (
@@ -24,7 +27,9 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
+      <h1>My Doggie</h1>
+      <h4>Is Chewing: {isChewing ? "yes" : "no"}</h4>
+      <h4>Current State: {currentState}</h4>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
