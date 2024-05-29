@@ -1,4 +1,5 @@
 import { CreatureState } from "./CreatureState";
+import { Clamp01 } from "./GlobalShit";
 
 export class SleepingState extends CreatureState {
   public get name(): string {
@@ -6,11 +7,17 @@ export class SleepingState extends CreatureState {
   }
   public enter() {
     super.enter();
+    this.creatureData.areEyesOpen = true;
+    this.creatureData.heartRate = 40;
+    const newEnergy = this.creatureData.energy + 0.3;
+    this.creatureData.energy = Clamp01(newEnergy);
   }
   public update() {
     super.update();
   }
   public exit() {
     super.exit();
+    this.creatureData.areEyesOpen = false;
+    this.creatureData.heartRate = this.creatureData.defaultHeartRate;
   }
 }

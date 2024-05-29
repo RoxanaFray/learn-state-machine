@@ -5,6 +5,7 @@ import { IdleState } from "./IdleState";
 import { PlayingState } from "./PlayingState";
 import { RanAwayState } from "./RanAwayState";
 import { SleepingState } from "./SleepingState";
+import { Clamp01 } from "./GlobalShit";
 
 export class Creature {
   public get deltaTime() {
@@ -24,6 +25,12 @@ export class Creature {
   public giveFood(): void {
     if (this._sm.currentState == this._idleState) {
       this._data.hasRecievedFood = true;
+    }
+  }
+
+  public sendToBed(): void {
+    if (this._sm.currentState == this._idleState) {
+      this._data.isSentToBed = true;
     }
   }
 
@@ -73,6 +80,17 @@ export class Creature {
     onInitializedAction();
   }
 
+  private updateCreatureData() {
+    const fullness =
+      this._data.fullness -
+      this._data.fullnessDecreaseRatePerSec * this.deltaTime;
+    this._data.fullness = Clamp01(fullness);
+
+    const energy =
+      this._data.energy - this._data.energyDecreaseRatePerSec * this.deltaTime;
+    this._data.energy = Clamp01(energy);
+  }
+
   private update() {
     if (!this._data.isActive) return;
 
@@ -83,12 +101,18 @@ export class Creature {
       (this._sm.currentState.isActive && this._sm.currentState.isDone)
     ) {
       this._sm.setState(this._idleState);
-    } else if (
-      this._data.hasRecievedFood &&
-      this._sm.currentState == this._idleState
-    ) {
-      this._data.hasRecievedFood = false;
-      this._sm.setState(this._eatingState);
+    } else if (this._sm.currentState == this._idleState) {
+      if (this._data.hasRecievedFood) {
+        this._data.hasRecievedFood = false;
+        this._sm.setState(this._eatingState);
+      } else if (this._data.isSentToBed) {
+        this._data.isSentToBed = false;
+        this._sm.setState(this._sleepingState);
+      }
+    }
+
+    if (this._sm.currentState != this._ranAwayState) {
+      this.updateCreatureData();
     }
 
     this._sm.update();

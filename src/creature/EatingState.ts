@@ -1,4 +1,5 @@
 import { CreatureState } from "./CreatureState";
+import { Clamp01 } from "./GlobalShit";
 
 export class EatingState extends CreatureState {
   public get name(): string {
@@ -9,9 +10,8 @@ export class EatingState extends CreatureState {
     super.enter();
     this.creatureData.isChewing = true;
     this.creatureData.heartRate = 80;
-    let newFullness = this.creatureData.fullness + 0.3;
-    if (newFullness > 1) newFullness = 1;
-    this.creatureData.fullness = newFullness;
+    const newFullness = this.creatureData.fullness + 0.3;
+    this.creatureData.fullness = Clamp01(newFullness);
   }
   public update() {
     super.update();
