@@ -9,7 +9,9 @@ export class EatingState extends CreatureState {
     super.enter();
     this.creatureData.isChewing = true;
     this.creatureData.heartRate = 80;
-    this.creatureData.fullness = 1;
+    let newFullness = this.creatureData.fullness + 0.3;
+    if (newFullness > 1) newFullness = 1;
+    this.creatureData.fullness = newFullness;
   }
   public update() {
     super.update();
