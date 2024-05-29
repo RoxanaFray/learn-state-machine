@@ -13,25 +13,12 @@ export class Creature {
 
   public setIsActive(isActive: boolean) {
     if (isActive) this._lastFrameTime = Date.now();
-    this._isActive = isActive;
+    this._data.isActive = isActive;
   }
-  public setOnCurrentStateChangedAction(action: (val: string) => void) {
-    this._onCurrentStateChangedAction = action;
-  }
-  public setOnIsChewingChangedAction(action: (val: boolean) => void) {
-    this._onIsChewingChangedAction = action;
-    this._onIsChewingChangedAction(this._data.isChewing);
-  }
-  public setOnAreEyesOpenChangedAction(action: (val: boolean) => void) {
-    this._onAreEyesOpenChangedAction = action;
-  }
-  public setOnFullnessChangedAction(action: (val: number) => void) {
-    this._onFullnessChangedAction = action;
-    this._onFullnessChangedAction(this._data.fullness);
-  }
-  public setOnHeartRateChangedAction(action: (val: number) => void) {
-    this._onHeartRateChangedAction = action;
-    this._onHeartRateChangedAction(this._data.heartRate);
+
+  public setOnDataChangedAction(action: (data: CreatureData) => void) {
+    this._onDataChangedAction = action;
+    this._onDataChangedAction(this._data);
   }
 
   public giveFood(): void {
@@ -44,16 +31,9 @@ export class Creature {
   private _deltaTime: number = 0;
 
   private _data: CreatureData;
-
-  // data changed actions
-  private _onCurrentStateChangedAction: (val: string) => void;
-  private _onIsChewingChangedAction: (val: boolean) => void;
-  private _onAreEyesOpenChangedAction: (val: boolean) => void;
-  private _onFullnessChangedAction: (val: number) => void;
-  private _onHeartRateChangedAction: (val: number) => void;
+  private _onDataChangedAction: (data: CreatureData) => void;
 
   // state machine stuff
-  private _isActive: boolean;
   private _sm: StateMachine;
   private _idleState: IdleState;
   private _eatingState: EatingState;
@@ -63,7 +43,6 @@ export class Creature {
 
   constructor() {
     this._data = new CreatureData();
-    this._isActive = false;
     this.initializeStateMachine(() => this.startUpdateCycle());
   }
 
@@ -95,10 +74,9 @@ export class Creature {
   }
 
   private update() {
-    if (!this._isActive) return;
+    if (!this._data.isActive) return;
 
-    const oldData = JSON.parse(JSON.stringify(this._data)) as CreatureData;
-    const oldState = this._sm.currentState;
+    const oldDataSerialized = JSON.stringify(this._data);
 
     if (
       !this._sm.currentState ||
@@ -112,19 +90,19 @@ export class Creature {
       this._data.hasRecievedFood = false;
       this._sm.setState(this._eatingState);
     }
+
     this._sm.update();
+    this._data.stateName = this._sm.currentStateName;
 
-    if (oldState != this._sm.currentState)
-      this._onCurrentStateChangedAction(this._sm.currentStateName);
-    if (oldData.isChewing != this._data.isChewing)
-      this._onIsChewingChangedAction(this._data.isChewing);
-    if (oldData.heartRate != this._data.heartRate)
-      this._onHeartRateChangedAction(this._data.heartRate);
-    if (oldData.fullness != this._data.fullness)
-      this._onFullnessChangedAction(this._data.fullness);
-
+    // calculate delta time
     const currentTime = Date.now();
     this._deltaTime = (currentTime - this._lastFrameTime) / 1000;
     this._lastFrameTime = currentTime;
+
+    // call data changed action for view layer
+    const currentDataSerialized = JSON.stringify(this._data);
+    if (oldDataSerialized != currentDataSerialized) {
+      this._onDataChangedAction(this._data);
+    }
   }
 }

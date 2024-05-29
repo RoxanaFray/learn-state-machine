@@ -1,29 +1,27 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { creature } from "./creature/GlobalVariables";
+import { CreatureData } from "./creature/CreatureData";
 
 function App() {
-  const [isChewing, setIsChewing] = useState(false);
-  const [fullness, setFullness] = useState(0);
-  const [heartRate, setHeartRate] = useState(0);
-  const [currentState, setCurrentState] = useState("");
+  const [creatureData, setCreatureData] = useState(new CreatureData());
 
   useEffect(() => {
-    creature.setOnCurrentStateChangedAction(setCurrentState);
-    creature.setOnIsChewingChangedAction(setIsChewing);
-    creature.setOnHeartRateChangedAction(setHeartRate);
-    creature.setOnFullnessChangedAction(setFullness);
+    creature.setOnDataChangedAction((newData: CreatureData) => {
+      const dataCopy = JSON.parse(JSON.stringify(newData)) as CreatureData;
+      setCreatureData(dataCopy);
+    });
     creature.setIsActive(true);
   }, []);
 
   return (
     <>
       <div></div>
-      <h1>My Doggie</h1>
-      <h4>Is Chewing: {isChewing ? "yes" : "no"}</h4>
-      <h4>Current State: {currentState}</h4>
-      <h4>Heart Rate: {heartRate}</h4>
-      <h4>Fullness: {fullness}</h4>
+      <h1>Creature</h1>
+      <h4>Is Chewing: {creatureData.isChewing ? "yes" : "no"}</h4>
+      <h4>Current State: {creatureData.stateName}</h4>
+      <h4>Heart Rate: {creatureData.heartRate}</h4>
+      <h4>Fullness: {Math.round(creatureData.fullness * 100) / 100}</h4>
       <div className="card">
         <button
           onClick={() => {
