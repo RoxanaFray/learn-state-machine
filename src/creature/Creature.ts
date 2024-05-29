@@ -7,7 +7,12 @@ import { RanAwayState } from "./RanAwayState";
 import { SleepingState } from "./SleepingState";
 
 export class Creature {
+  public get deltaTime() {
+    return this._deltaTime;
+  }
+
   public setIsActive(isActive: boolean) {
+    if (isActive) this._lastFrameTime = Date.now();
     this._isActive = isActive;
   }
   public setOnCurrentStateChangedAction(action: (val: string) => void) {
@@ -15,15 +20,18 @@ export class Creature {
   }
   public setOnIsChewingChangedAction(action: (val: boolean) => void) {
     this._onIsChewingChangedAction = action;
+    this._onIsChewingChangedAction(this._data.isChewing);
   }
   public setOnAreEyesOpenChangedAction(action: (val: boolean) => void) {
     this._onAreEyesOpenChangedAction = action;
   }
   public setOnFullnessChangedAction(action: (val: number) => void) {
     this._onFullnessChangedAction = action;
+    this._onFullnessChangedAction(this._data.fullness);
   }
   public setOnHeartRateChangedAction(action: (val: number) => void) {
     this._onHeartRateChangedAction = action;
+    this._onHeartRateChangedAction(this._data.heartRate);
   }
 
   public giveFood(): void {
@@ -31,6 +39,9 @@ export class Creature {
       this._data.hasRecievedFood = true;
     }
   }
+
+  private _lastFrameTime: number = Date.now();
+  private _deltaTime: number = 0;
 
   private _data: CreatureData;
 
@@ -105,8 +116,15 @@ export class Creature {
 
     if (oldState != this._sm.currentState)
       this._onCurrentStateChangedAction(this._sm.currentStateName);
-    if (oldData.isChewing != this._data.isChewing) {
+    if (oldData.isChewing != this._data.isChewing)
       this._onIsChewingChangedAction(this._data.isChewing);
-    }
+    if (oldData.heartRate != this._data.heartRate)
+      this._onHeartRateChangedAction(this._data.heartRate);
+    if (oldData.fullness != this._data.fullness)
+      this._onFullnessChangedAction(this._data.fullness);
+
+    const currentTime = Date.now();
+    this._deltaTime = (currentTime - this._lastFrameTime) / 1000;
+    this._lastFrameTime = currentTime;
   }
 }

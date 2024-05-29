@@ -8,6 +8,8 @@ export class EatingState extends CreatureState {
   public enter() {
     super.enter();
     this.creatureData.isChewing = true;
+    this.creatureData.heartRate = 80;
+    this.creatureData.fullness = 1;
   }
   public update() {
     super.update();
@@ -15,5 +17,6 @@ export class EatingState extends CreatureState {
   public exit() {
     super.exit();
     this.creatureData.isChewing = false;
+    this.creatureData.heartRate = this.creatureData.defaultHeartRate;
   }
 }
