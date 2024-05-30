@@ -34,6 +34,12 @@ export class Creature {
     }
   }
 
+  public play(): void {
+    if (this._sm.currentState == this._idleState) {
+      this._data.isPlaying = true;
+    }
+  }
+
   private _lastFrameTime: number = Date.now();
   private _deltaTime: number = 0;
 
@@ -89,6 +95,11 @@ export class Creature {
     const energy =
       this._data.energy - this._data.energyDecreaseRatePerSec * this.deltaTime;
     this._data.energy = Clamp01(energy);
+
+    const happiness =
+      this._data.happiness -
+      this._data.happinessDecreaseRatePerSec * this.deltaTime;
+    this._data.happiness = Clamp01(happiness);
   }
 
   private update() {
@@ -108,6 +119,9 @@ export class Creature {
       } else if (this._data.isSentToBed) {
         this._data.isSentToBed = false;
         this._sm.setState(this._sleepingState);
+      } else if (this._data.isPlaying) {
+        this._data.isPlaying = false;
+        this._sm.setState(this._playingState);
       }
     }
 

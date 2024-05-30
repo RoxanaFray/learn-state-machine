@@ -7,7 +7,7 @@ export class SleepingState extends CreatureState {
   }
   public enter() {
     super.enter();
-    this.creatureData.areEyesOpen = true;
+    this.creatureData.areEyesClosed = true;
     this.creatureData.heartRate = 40;
     const newEnergy = this.creatureData.energy + 0.3;
     this.creatureData.energy = Clamp01(newEnergy);
@@ -17,7 +17,7 @@ export class SleepingState extends CreatureState {
   }
   public exit() {
     super.exit();
-    this.creatureData.areEyesOpen = false;
+    this.creatureData.areEyesClosed = false;
     this.creatureData.heartRate = this.creatureData.defaultHeartRate;
   }
 }
