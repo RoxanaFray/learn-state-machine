@@ -1,9 +1,9 @@
 class CreatureData {
   // settings
   public readonly defaultHeartRate = 60;
-  public readonly fullnessDecreaseRatePerSec = 0.01;
-  public readonly energyDecreaseRatePerSec = 0.01;
-  public readonly happinessDecreaseRatePerSec = 0.01;
+  public readonly fullnessDecreaseRatePerSec = 0.1;
+  public readonly energyDecreaseRatePerSec = 0.02;
+  public readonly happinessDecreaseRatePerSec = 0.05;
 
   // data
   public stateName: string = "";
@@ -17,7 +17,6 @@ class CreatureData {
   public happiness: number = 0.5;
   public heartRate: number = 60;
   public energy: number = 0.5;
-  public ranAway: boolean = false;
 }
 
 export { CreatureData };

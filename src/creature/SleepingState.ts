@@ -2,9 +2,6 @@ import { CreatureState } from "./CreatureState";
 import { Clamp01 } from "./GlobalShit";
 
 export class SleepingState extends CreatureState {
-  public get name(): string {
-    return "Sleeping";
-  }
   public enter() {
     super.enter();
     this.creatureData.areEyesClosed = true;

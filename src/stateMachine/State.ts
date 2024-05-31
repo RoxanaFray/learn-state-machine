@@ -1,8 +1,4 @@
 export abstract class State {
-  public get name(): string {
-    return "";
-  }
-
   public get isActive(): boolean {
     return this._isActive;
   }

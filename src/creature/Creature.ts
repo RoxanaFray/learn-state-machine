@@ -1,5 +1,6 @@
 import { StateMachine } from "../stateMachine/StateMachine";
 import { CreatureData } from "./CreatureData";
+import { CreatureState } from "./CreatureState";
 import { EatingState } from "./EatingState";
 import { IdleState } from "./IdleState";
 import { PlayingState } from "./PlayingState";
@@ -87,25 +88,57 @@ export class Creature {
   }
 
   private updateCreatureData() {
-    const fullness =
-      this._data.fullness -
-      this._data.fullnessDecreaseRatePerSec * this.deltaTime;
-    this._data.fullness = Clamp01(fullness);
+    if (this._sm.currentState != this._ranAwayState) {
+      const fullness =
+        this._data.fullness -
+        this._data.fullnessDecreaseRatePerSec * this.deltaTime;
+      this._data.fullness = Clamp01(fullness);
 
-    const energy =
-      this._data.energy - this._data.energyDecreaseRatePerSec * this.deltaTime;
-    this._data.energy = Clamp01(energy);
+      const energy =
+        this._data.energy -
+        this._data.energyDecreaseRatePerSec * this.deltaTime;
+      this._data.energy = Clamp01(energy);
 
-    const happiness =
-      this._data.happiness -
-      this._data.happinessDecreaseRatePerSec * this.deltaTime;
-    this._data.happiness = Clamp01(happiness);
+      const happiness =
+        this._data.happiness -
+        this._data.happinessDecreaseRatePerSec * this.deltaTime;
+      this._data.happiness = Clamp01(happiness);
+    }
+
+    this._data.stateName = this._sm.currentState.constructor.name;
   }
 
   private update() {
     if (!this._data.isActive) return;
 
     const oldDataSerialized = JSON.stringify(this._data);
+
+    this.changeStateIfNeeded();
+    this.updateCreatureData();
+
+    this._sm.update();
+
+    // calculate delta time
+    const currentTime = Date.now();
+    this._deltaTime = (currentTime - this._lastFrameTime) / 1000;
+    this._lastFrameTime = currentTime;
+
+    // call data changed action for view layer
+    const currentDataSerialized = JSON.stringify(this._data);
+    if (oldDataSerialized != currentDataSerialized) {
+      this._onDataChangedAction(this._data);
+    }
+  }
+
+  private changeStateIfNeeded() {
+    if (
+      this._data.happiness == 0 ||
+      this._data.fullness == 0 ||
+      this._data.energy == 0
+    ) {
+      this._sm.setState(this._ranAwayState);
+      return;
+    }
 
     if (
       !this._sm.currentState ||
@@ -123,24 +156,6 @@ export class Creature {
         this._data.isPlaying = false;
         this._sm.setState(this._playingState);
       }
-    }
-
-    if (this._sm.currentState != this._ranAwayState) {
-      this.updateCreatureData();
-    }
-
-    this._sm.update();
-    this._data.stateName = this._sm.currentStateName;
-
-    // calculate delta time
-    const currentTime = Date.now();
-    this._deltaTime = (currentTime - this._lastFrameTime) / 1000;
-    this._lastFrameTime = currentTime;
-
-    // call data changed action for view layer
-    const currentDataSerialized = JSON.stringify(this._data);
-    if (oldDataSerialized != currentDataSerialized) {
-      this._onDataChangedAction(this._data);
     }
   }
 }

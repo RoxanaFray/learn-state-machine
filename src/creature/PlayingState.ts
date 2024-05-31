@@ -2,9 +2,6 @@ import { CreatureState } from "./CreatureState";
 import { Clamp01 } from "./GlobalShit";
 
 export class PlayingState extends CreatureState {
-  public get name(): string {
-    return "Playing";
-  }
   public enter() {
     super.enter();
     this.creatureData.isPlaying = true;
