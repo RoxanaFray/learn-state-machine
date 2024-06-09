@@ -1,6 +1,5 @@
 import { StateMachine } from "../stateMachine/StateMachine";
 import { CreatureData } from "./CreatureData";
-import { CreatureState } from "./CreatureState";
 import { EatingState } from "./EatingState";
 import { IdleState } from "./IdleState";
 import { PlayingState } from "./PlayingState";
@@ -41,8 +40,25 @@ export class Creature {
     }
   }
 
+  public reset(): void {
+    if (this._updateCycleId) {
+      clearInterval(this._updateCycleId);
+      this._updateCycleId = null;
+    }
+    if (this._sm && this._sm.currentState) {
+      this._sm.currentState.exit();
+    }
+    this._data = new CreatureData();
+    this.initializeStateMachine(() => this.startUpdateCycle());
+  }
+
+  public pause(): void {}
+
+  public continue(): void {}
+
   private _lastFrameTime: number = Date.now();
   private _deltaTime: number = 0;
+  private _updateCycleId: number | null = null;
 
   private _data: CreatureData;
   private _onDataChangedAction: (data: CreatureData) => void;
@@ -56,12 +72,11 @@ export class Creature {
   private _ranAwayState: RanAwayState;
 
   constructor() {
-    this._data = new CreatureData();
-    this.initializeStateMachine(() => this.startUpdateCycle());
+    this.reset();
   }
 
   private startUpdateCycle() {
-    setInterval(() => {
+    this._updateCycleId = setInterval(() => {
       this.update();
     }, 32);
   }

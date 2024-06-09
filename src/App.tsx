@@ -78,6 +78,14 @@ function App() {
           >
             PLAY
           </button>
+          <button
+            onClick={() => {
+              creature.reset();
+              creature.setIsActive(true);
+            }}
+          >
+            RESET
+          </button>
         </div>
       </div>
     </>
