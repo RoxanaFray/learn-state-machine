@@ -13,8 +13,12 @@ export class Creature {
   }
 
   public setIsActive(isActive: boolean) {
+    const oldValue = this._data.isActive;
     if (isActive) this._lastFrameTime = Date.now();
     this._data.isActive = isActive;
+    if (oldValue != isActive) {
+      this._onDataChangedAction(this._data);
+    }
   }
 
   public setOnDataChangedAction(action: (data: CreatureData) => void) {
@@ -23,18 +27,21 @@ export class Creature {
   }
 
   public giveFood(): void {
+    if (!this._data.isActive) return;
     if (this._sm.currentState == this._idleState) {
       this._data.hasRecievedFood = true;
     }
   }
 
   public sendToBed(): void {
+    if (!this._data.isActive) return;
     if (this._sm.currentState == this._idleState) {
       this._data.isSentToBed = true;
     }
   }
 
   public play(): void {
+    if (!this._data.isActive) return;
     if (this._sm.currentState == this._idleState) {
       this._data.isPlaying = true;
     }

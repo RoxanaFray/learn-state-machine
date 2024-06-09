@@ -58,6 +58,7 @@ function App() {
         <h4>Happiness: {Math.round(creatureData.happiness * 100) / 100}</h4>
         <div className="card">
           <button
+            disabled={!creatureData.isActive}
             onClick={() => {
               creature.giveFood();
             }}
@@ -65,6 +66,7 @@ function App() {
             GIVE FOOD
           </button>
           <button
+            disabled={!creatureData.isActive}
             onClick={() => {
               creature.sendToBed();
             }}
@@ -72,6 +74,7 @@ function App() {
             SEND TO BED
           </button>
           <button
+            disabled={!creatureData.isActive}
             onClick={() => {
               creature.play();
             }}
@@ -85,6 +88,13 @@ function App() {
             }}
           >
             RESET
+          </button>
+          <button
+            onClick={() => {
+              creature.setIsActive(creatureData.isActive ? false : true);
+            }}
+          >
+            {creatureData.isActive ? "PAUSE" : "CONTINUE"}
           </button>
         </div>
       </div>
